@@ -109,9 +109,11 @@ func (this *RaftNode) startElection() {
 					this.write_log("State changed from Candidate to Follower with term=%d", this.currentTerm)
 					return
 				} else if reply.Term == this.currentTerm {
+					this.write_log("Else IF condition of start election working")
 					if reply.VoteGranted {
 						votesReceived += 1
 						if votesReceived > len(this.peersIds)/2 {
+							this.write_log("leader_election starts")
 							this.startLeader()
 						}
 					}
@@ -119,6 +121,7 @@ func (this *RaftNode) startElection() {
 				}
 				//-------------------------------------------------------------------------------------------/
 			}
+			this.write_log("Received RequestVote reply from %d with lower term %d. Ignoring", peerId, reply.Term)
 		}(peerId)
 	}
 	// Run another election timer, in case this election is not successful.
@@ -133,15 +136,21 @@ func (this *RaftNode) becomeFollower(term int) {
 	//-------------------------------------------------------------------------------------------/
 	// TODO
 	//-------------------------------------------------------------------------------------------/
-	this.mu.Lock()
-	defer this.mu.Unlock()
+	// this.mu.Lock()
+	// defer this.mu.Unlock()
 
-	// Update the term if the new term is greater than the current term.
-	if term > this.currentTerm {
-		this.currentTerm = term
-		this.votedFor = -1 // Reset votedFor field.
-		this.state = "Follower"
-		this.lastElectionTimerStartedTime = time.Now()
-		this.write_log("Updated currentTerm=%d; reset votedFor and election timer", term)
-	}
+	// // Update the term if the new term is greater than the current term.
+	// if term > this.currentTerm {
+	// 	this.currentTerm = term
+	// 	this.votedFor = -1 // Reset votedFor field.
+	// 	this.state = "Follower"
+	// 	this.lastElectionTimerStartedTime = time.Now()
+	// 	this.write_log("Updated currentTerm=%d; reset votedFor and election timer", term)
+	// }
+	this.state = "Follower"
+	this.currentTerm = term
+	this.votedFor = -1
+	this.lastElectionTimerStartedTime = time.Now()
+	this.write_log("Updated currentTerm=%d; reset votedFor and election timer", term)
+	go this.startElectionTimer()
 }

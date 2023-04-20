@@ -48,10 +48,15 @@ func (this *RaftNode) HandleRequestVote(args RequestVoteArgs, reply *RequestVote
 	// THIS REQUEST, OR NOT
 	// All the variables that you need for the conditions have been defined above.
 	//-------------------------------------------------------------------------------------------/
-	if  { // TODO: what are the conditions necessary to vote? HINT: there's multiple.
+	if args.Term > this.currentTerm {
+		this.becomeFollower(args.Term)
+	}
 
-		// TODO: indicate that it has voted.
-
+	if (this.votedFor == -1 || this.votedFor == args.CandidateId) &&
+		(args.LastLogTerm > nodeLastLogTerm || (args.LastLogTerm == nodeLastLogTerm && args.LastLogIndex >= nodeLastLogIndex)) {
+		reply.VoteGranted = true
+		this.votedFor = args.CandidateId
+		this.lastElectionTimerStartedTime = time.Now()
 	} else {
 		reply.VoteGranted = false
 	}
@@ -87,6 +92,7 @@ func (this *RaftNode) HandleAppendEntries(args AppendEntriesArgs, reply *AppendE
 	this.mu.Lock()
 	defer this.mu.Unlock()
 	if this.state == "Dead" {
+		this.write_log("State is dead")
 		return nil
 	}
 
