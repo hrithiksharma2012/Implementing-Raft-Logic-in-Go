@@ -2,13 +2,12 @@ package raft
 
 import "time"
 
-// Handles an incoming RPC RequestVote request
+// Handling the incoming RPC RequestVote req
 type RequestVoteArgs struct {
 	Term         int
 	CandidateId  int
 	LastLogIndex int
 	LastLogTerm  int
-
 	Latency int
 }
 
@@ -17,8 +16,7 @@ type RequestVoteReply struct {
 	VoteGranted bool
 }
 
-// RequestVote RPC. This is the function that is executed by the node that
-// RECEIVES the RequestVote.
+// RequestVote RPC. This is executed by the node that RECEIVES the RequestVote.
 func (this *RaftNode) HandleRequestVote(args RequestVoteArgs, reply *RequestVoteReply) error {
 	this.mu.Lock()
 	defer this.mu.Unlock()
@@ -79,7 +77,6 @@ type AppendEntriesArgs struct {
 	PrevLogTerm  int
 	Entries      []LogEntry
 	LeaderCommit int
-
 	Latency int
 }
 
@@ -120,8 +117,9 @@ func (this *RaftNode) HandleAppendEntries(args AppendEntriesArgs, reply *AppendE
 
 		// Does our log contain an entry at PrevLogIndex whose term matches PrevLogTerm?
 		if args.PrevLogIndex == -1 ||
-			(args.PrevLogIndex < len(this.log) && args.PrevLogTerm == this.log[args.PrevLogIndex].Term) {
-			reply.Success = true
+			(args.PrevLogIndex < len(this.log) && args.PrevLogTerm == this.log[args.PrevLogIndex].Term)
+			 {
+				reply.Success = true
 
 			// Find an insertion point - where there's a term mismatch between
 			// the existing log starting at PrevLogIndex+1 and the new entries sent
@@ -172,7 +170,8 @@ func (this *RaftNode) HandleAppendEntries(args AppendEntriesArgs, reply *AppendE
 }
 
 // Either handle Command or tell to divert it to Leader
-func (this *RaftNode) ReceiveClientCommand(command interface{}) bool {
+func (this *RaftNode) ReceiveClientCommand(command interface{}) bool 
+{
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
