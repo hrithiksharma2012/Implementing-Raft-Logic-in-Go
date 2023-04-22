@@ -117,8 +117,7 @@ func (this *RaftNode) HandleAppendEntries(args AppendEntriesArgs, reply *AppendE
 
 		// Does our log contain an entry at PrevLogIndex whose term matches PrevLogTerm?
 		if args.PrevLogIndex == -1 ||
-			(args.PrevLogIndex < len(this.log) && args.PrevLogTerm == this.log[args.PrevLogIndex].Term)
-			 {
+			(args.PrevLogIndex < len(this.log) && args.PrevLogTerm == this.log[args.PrevLogIndex].Term){
 				reply.Success = true
 
 			// Find an insertion point - where there's a term mismatch between
@@ -170,8 +169,7 @@ func (this *RaftNode) HandleAppendEntries(args AppendEntriesArgs, reply *AppendE
 }
 
 // Either handle Command or tell to divert it to Leader
-func (this *RaftNode) ReceiveClientCommand(command interface{}) bool 
-{
+func (this *RaftNode) ReceiveClientCommand(command interface{}) bool {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
