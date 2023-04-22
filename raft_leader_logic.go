@@ -105,9 +105,11 @@ func (this *RaftNode) broadcastHeartbeats() {
 						// this.nextIndex for the received PEER (this.nextIndex[peerId]) needs to be updated.
 						// So does this.matchIndex[peerId].
 						// IMPLEMENT THE UPDATE LOGIC FOR THIS.
-						//-------------------------------------------------------------------------------------------/
+
 						// TODO
-						//-------------------------------------------------------------------------------------------/
+						// Here we are updating the next of the peer with previous log Index and lenght of the Entries + 1
+						// And updating the matchIndex of peer with previous log Index and length of the Entries
+
 						this.nextIndex[peerId] = args.PrevLogIndex + len(args.Entries) + 1
 						this.matchIndex[peerId] = args.PrevLogIndex + len(args.Entries)
 						if (aeType == "Heartbeat" && LogHeartbeatMessages) || aeType == "AppendEntries" {
@@ -126,12 +128,14 @@ func (this *RaftNode) broadcastHeartbeats() {
 								matchCount := 1 // Leader itself
 
 								for _, peerId := range this.peersIds {
-									if this.matchIndex[peerId] >= i { // TODO  // When should you update matchCount?
+									if this.matchIndex[peerId] >= i { // TODO  // When should you update matchCount? 
+										//If the matchIndex of peer is greater than or equal to commitIndex
 										matchCount++
 									}
 								}
 
-								if matchCount > len(this.peersIds)/2 { // TODO  // When should you update commitIndex to i?
+								if matchCount > len(this.peersIds)/2 { // TODO  // When should you update commitIndex to i? 
+									// If matchCount is greater than the half of peers 
 									this.commitIndex = i
 								}
 							}
@@ -149,11 +153,12 @@ func (this *RaftNode) broadcastHeartbeats() {
 
 						// There's changes you need to make here.
 						// this.nextIndex for the received PEER (this.nextIndex[peerId]) needs to be updated.
-
-						//-------------------------------------------------------------------------------------------/
+						
 						// TODO
-						//-------------------------------------------------------------------------------------------/
+						// If the reply is not Successful then the next index of the peer is decreased by one
 						this.nextIndex[peerId]--
+
+					
 						if (aeType == "Heartbeat" && LogHeartbeatMessages) || aeType == "AppendEntries" {
 							this.write_log("%s reply from NODE %d was failure; Hence, decrementing its nextIndex", aeType, peerId)
 						}
